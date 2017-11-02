@@ -3,67 +3,73 @@ from fabric.decorators import roles
 from fabric.operations import put
 from fabric.tasks import execute
 
+# ========== Config Begin ==========
+
 coordinatorHosts = ['fp-bd5']
 workerHosts = ['fp-bd4']
 
-env.user = 'root'
+sshUser = 'root'
+
+prestoName = "presto-server-0.186"
+prestoTar = prestoName + '.tar.gz'
+prestoInstallationDir = '/program'
+prestoPackageDir = '/usr/package'
+
+localPrestoTarPath = '/Users/chao.liao/dev/package/linux/bigdata/' + prestoTar
+
+# ========== Config End ==========
+
+env.user = sshUser
 env.roledefs = {
     'coordinator': coordinatorHosts,
     'worker': workerHosts,
     'allHost': coordinatorHosts + workerHosts
 }
 
-prestoName = "presto-server-0.186"
-prestoTar = prestoName + '.tar.gz'
-localPrestoTarPath = '/Users/chao.liao/dev/package/linux/bigdata/' + prestoTar
-
-pkgDir = '/usr/package'
-programDir = '/program'
-
 
 @roles('allHost')
 def deployCommonComponent():
-    run('mkdir -p ' + pkgDir)
-    put(localPrestoTarPath, pkgDir)
-    run('mkdir -p ' + programDir)
-    run('tar -xf ' + pkgDir + '/' + prestoTar + ' -C ' + programDir)
+    run('mkdir -p ' + prestoPackageDir)
+    put(localPrestoTarPath, prestoPackageDir)
+    run('mkdir -p ' + prestoInstallationDir)
+    run('tar -xf ' + prestoPackageDir + '/' + prestoTar + ' -C ' + prestoInstallationDir)
 
 
 @roles('allHost')
 def configCommon():
-    put('common/etc', programDir + '/' + prestoName)
-    run('echo "\nnode.id=' + env.host + '" >> ' + programDir + '/' + prestoName + '/etc/node.properties')
+    put('common/etc', prestoInstallationDir + '/' + prestoName)
+    run('echo "\nnode.id=' + env.host + '" >> ' + prestoInstallationDir + '/' + prestoName + '/etc/node.properties')
 
 
 @roles('coordinator')
 def configCoordinator():
-    put('coordinator/etc/config.properties', programDir + '/' + prestoName + '/etc')
+    put('coordinator/etc/config.properties', prestoInstallationDir + '/' + prestoName + '/etc')
 
 
 @roles('worker')
 def configWorker():
-    put('worker/etc/config.properties', programDir + '/' + prestoName + '/etc')
+    put('worker/etc/config.properties', prestoInstallationDir + '/' + prestoName + '/etc')
 
 
 @roles('allHost')
 def reloadCatalogForAllHost():
-    run('rm -r ' + programDir + '/' + prestoName + '/etc/catalog')
+    run('rm -r ' + prestoInstallationDir + '/' + prestoName + '/etc/catalog')
     loadCatalogForAllHost()
 
 
 @roles('allHost')
 def loadCatalogForAllHost():
-    put('common/etc/catalog', programDir + '/' + prestoName + '/etc')
+    put('common/etc/catalog', prestoInstallationDir + '/' + prestoName + '/etc')
 
 
 @roles('allHost')
 def startAll():
-    run(programDir + '/' + prestoName + '/bin/launcher start')
+    run(prestoInstallationDir + '/' + prestoName + '/bin/launcher start')
 
 
 @roles('allHost')
 def stopAll():
-    run(programDir + '/' + prestoName + '/bin/launcher stop')
+    run(prestoInstallationDir + '/' + prestoName + '/bin/launcher stop')
 
 
 # ============ Avaliable methods as follow ============
