@@ -66,7 +66,7 @@ def stopAll():
     run(programDir + '/' + prestoName + '/bin/launcher stop')
 
 
-# Avaliable methods
+# ============ Avaliable methods as follow ============
 
 def deploy():
     execute(deployCommonComponent)
@@ -76,7 +76,6 @@ def deploy():
     execute(loadCatalogForAllHost)
     execute(stopAll)
     execute(startAll)
-    pass
 
 
 def reload(cmd='all'):
