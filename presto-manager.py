@@ -15,7 +15,7 @@ prestoTar = prestoName + '.tar.gz'
 prestoInstallationDir = '/program'
 prestoPackageDir = '/usr/package'
 
-localPrestoTarPath = '/Users/chao.liao/dev/package/linux/bigdata/' + prestoTar
+localPrestoTarPath = '/usr/package/' + prestoTar
 
 # ========== Config End ==========
 
@@ -29,7 +29,7 @@ env.roledefs = {
 
 @roles('allHost')
 def deployCommonComponent():
-    if local('hostname') != env.host:
+    if local('hostname', capture=True) != env.host:
         run('mkdir -p ' + prestoPackageDir)
         put(localPrestoTarPath, prestoPackageDir)
     run('mkdir -p ' + prestoInstallationDir)
