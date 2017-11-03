@@ -1,4 +1,4 @@
-from fabric.api import run, env
+from fabric.api import run, env, local
 from fabric.decorators import roles
 from fabric.operations import put
 from fabric.tasks import execute
@@ -29,8 +29,9 @@ env.roledefs = {
 
 @roles('allHost')
 def deployCommonComponent():
-    run('mkdir -p ' + prestoPackageDir)
-    put(localPrestoTarPath, prestoPackageDir)
+    if local('hostname') != env.host:
+        run('mkdir -p ' + prestoPackageDir)
+        put(localPrestoTarPath, prestoPackageDir)
     run('mkdir -p ' + prestoInstallationDir)
     run('tar -xf ' + prestoPackageDir + '/' + prestoTar + ' -C ' + prestoInstallationDir)
 
