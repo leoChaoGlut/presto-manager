@@ -1,0 +1,9 @@
+{
+  "catalogs": [
+    {
+      "user": "dev",
+      "catalog": "(.*)",
+      "allow": true
+    }
+  ]
+}
