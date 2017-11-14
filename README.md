@@ -3,7 +3,7 @@ presto cluster management
 
 # Requirements
 ```
-pip install fabric
+pip3 install fabric3
 ```
 # Usage
 ```
